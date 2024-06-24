@@ -1,0 +1,13 @@
+#<Directory "home/sites/site100021592/web/test">
+#    Options Indexes FollowSymLinks
+#    AllowOverride All
+#    Order allow,deny
+#    Allow from all
+#</Directory>
+
+# Ensure CORS headers are set to allow cross-origin requests
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type"
+</IfModule>
