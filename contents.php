@@ -30,7 +30,7 @@
         }
         .rotate {
             writing-mode: vertical-rl;
-            transform: rotate(180deg);
+            transform: rotate(180deg);            
             white-space: nowrap;
         }
         .fixed-column {
@@ -51,7 +51,7 @@
         .greyed-out-checkbox {
             pointer-events: none;
             opacity: 0.6;
-        }
+        }        
     </style>
 <script>
 /*
@@ -102,7 +102,7 @@
             <input type="text" id="year-of-birth" placeholder="Year of Birth">
             <input type="email" id="email" placeholder="Email (Optional)">
             <button class="btn btn-primary" onclick="createEntry()">Add</button>
-            <button class="btn btn-danger" onclick="cancelCreateEntry()"><i class="fas fa-times"></i></button> <!-- Abort button -->
+            <button class="btn btn-danger" onclick="cancelCreateEntry()"><i class="fas fa-times"></i></button> 
         </div>
         <div class="table-container">
             <?php
@@ -140,13 +140,13 @@
                     echo '</tr></thead><tbody>';
 
                     for ($i = 1; $i < count($data); $i++) {
-                        $name = $data[$i][0] . ' ' . $data[$i][1] . ' (' . $data[$i][2] . ')';
+                        $name = $data[$i][0] . ' ' . $data[$i][1][0] . '. (' . $data[$i][2] . ')';
                         echo '<tr id="row-' . $i . '" data-first-name="' . htmlspecialchars($data[$i][0]) . '" data-last-name="' . htmlspecialchars($data[$i][1]) . '" data-year-of-birth="' . htmlspecialchars($data[$i][2]) . '" data-email="' . htmlspecialchars($data[$i][3]) . '">';
                         echo '<td class="fixed-column">' . htmlspecialchars($name) . '</td>';
                         for ($j = 4; $j < count($data[$i]); $j++) {
                             $isChecked = $data[$i][$j] === 'x' ? 'checked' : '';
                             $isToday = date('Y-m-d', strtotime($data[0][$j])) === $today ? true : false;
-                            echo '<td class="checkbox-cell">';
+                            echo '<td class="checkbox-cell" style="text-align: center;">';
                             if ($isToday) {
                                 echo '<input type="checkbox" id="checkbox-' . $i . '-' . $j . '" ' . $isChecked . ' onclick="toggleCheckbox(this)">';
                             } else {
@@ -191,9 +191,10 @@
         function createEntry() {
             const firstName = document.getElementById('first-name').value;
             const lastName = document.getElementById('last-name').value;
+            const shortName = lastName.substring(0,1);
             const yearOfBirth = document.getElementById('year-of-birth').value;
             const email = document.getElementById('email').value || '';
-            const name = `${firstName} ${lastName} (${yearOfBirth})`;
+            const name = `${firstName} ${shortName}. (${yearOfBirth})`;
 
             if (!firstName || !lastName || !yearOfBirth) {
                 alert('First Name, Last Name, and Year of Birth are required.');
@@ -265,7 +266,26 @@
                 <button class="btn btn-warning btn-sm" onclick="editRow(${rowIndex})"><i class="fas fa-pen"></i></button>
                 <button class="btn btn-danger btn-sm" onclick="deleteRow(${rowIndex})"><i class="fas fa-times"></i></button>
             `;
-            scrollToRightEnd(); // Scroll to the right end of the table after canceling edit
+        }
+
+        function saveEdit(rowIndex) {
+            const firstName = document.getElementById(`edit-first-name-${rowIndex}`).value;
+            const lastName = document.getElementById(`edit-last-name-${rowIndex}`).value;
+            const shortName = lastName.substring(0,1);
+            const yearOfBirth = document.getElementById(`edit-year-of-birth-${rowIndex}`).value;
+            const email = document.getElementById(`edit-email-${rowIndex}`).value || '';
+            const name = `${firstName} ${shortName}. (${yearOfBirth})`;
+
+            const row = document.getElementById(`row-${rowIndex}`);
+            row.setAttribute('data-first-name', firstName);
+            row.setAttribute('data-last-name', lastName);
+            row.setAttribute('data-year-of-birth', yearOfBirth);
+            row.setAttribute('data-email', email);
+            row.cells[0].innerHTML = name;
+            row.cells[row.cells.length - 1].innerHTML = `
+                <button class="btn btn-warning btn-sm" onclick="editRow(${rowIndex})"><i class="fas fa-pen"></i></button>
+                <button class="btn btn-danger btn-sm" onclick="deleteRow(${rowIndex})"><i class="fas fa-times"></i></button>
+            `;
         }
 
         function deleteRow(rowIndex) {
