@@ -62,7 +62,7 @@
                 echo '<div><div class="btn btn-outline-secondary" onclick="redirectToContents(\'' . $filename . '\')" style="width: calc(100.00% - 10px);">'; // onclick="redirectToContents(\'' . $filename . '\')">;
                 echo '<div class="file-icon"><i class="fas fa-file-csv"></i></div>';
                 echo '<div class="file-name">' . htmlspecialchars($filename) . '</div></div></div>';
-                echo '<a class="btn btn-primary btn-file" href="data/' . urlencode($filename) . '" download>Download</a>';
+                echo '<a class="btn btn-primary btn-file mr-1" href="data/' . urlencode($filename) . '" download>Download</a>';
                 echo '<button class="btn btn-danger btn-file" onclick="deleteCsv(\'' . $filename . '\', event)">Delete</button>';
                 echo '</div>';
             }
