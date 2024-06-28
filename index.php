@@ -16,14 +16,14 @@
             padding: 0;
             display: flex;
             flex-wrap: wrap;
-            justify-content: space-between;
+            justify-content: space-evenly;
         }
         .file-item {
             width: calc(33.33% - 10px); /* Three files per row with spacing */
             margin-bottom: 20px;
             text-align: center;
             padding: 10px;
-            border: 1px solid #ccc;
+            border: none; /*1px solid #ccc;*/
             border-radius: 5px;
             cursor: pointer; /* Cursor pointer to indicate clickable */
         }
@@ -50,8 +50,8 @@
 </head>
 <body>
     <div class="container">
-        <h1 class="text-center">CSV File Viewer</h1>
-        <button class="btn btn-success btn-create" onclick="createCsvFile()">Create New CSV File</button>
+        <h1 class="text-center">SVG Anwesenheitsliste</h1>
+        <h3>Verfügbare Listen</h3>
         <ul class="file-list" id="file-list">
             <?php
             // List all CSV files in the data directory
@@ -59,15 +59,17 @@
             foreach ($files as $file) {
                 $filename = basename($file);
                 echo '<div class="file-item">';
-                echo '<div onclick="redirectToContents(\'' . $filename . '\')">';// onclick="redirectToContents(\'' . $filename . '\')">;
+                echo '<div><div class="btn btn-outline-secondary" onclick="redirectToContents(\'' . $filename . '\')" style="width: calc(100.00% - 10px);">'; // onclick="redirectToContents(\'' . $filename . '\')">;
                 echo '<div class="file-icon"><i class="fas fa-file-csv"></i></div>';
-                echo '<div class="file-name">' . htmlspecialchars($filename) . '</div></div>';
+                echo '<div class="file-name">' . htmlspecialchars($filename) . '</div></div></div>';
                 echo '<a class="btn btn-primary btn-file" href="data/' . urlencode($filename) . '" download>Download</a>';
                 echo '<button class="btn btn-danger btn-file" onclick="deleteCsv(\'' . $filename . '\', event)">Delete</button>';
                 echo '</div>';
             }
             ?>
         </ul>
+        <hr class="hr" />
+        <button class="btn btn-success btn-create" onclick="createCsvFile()">Create New CSV File</button>
     </div>
 
     <script>
@@ -112,13 +114,6 @@
         function redirectToContents(filename) {
             window.location.href = 'contents.php?filename=' + encodeURIComponent(filename);
         }
-
-        /* Not working
-        // Function to open content.php for viewing CSV content
-        function openContent(filename) {
-            window.location.href = `content.php?filename=${encodeURIComponent(filename)}`;
-        }
-        */
     </script>
 </body>
 </html>
