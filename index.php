@@ -10,6 +10,13 @@
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
+            
+            background-image: url('./background.svg');
+            background-size: cover;
+            background-position: center;
+            height: 100vh; /* Full viewport height */
+            
+            color: #DDDDDD; /*white;*/
         }
         .file-list {
             list-style-type: none;
@@ -22,10 +29,16 @@
             width: calc(33.33% - 10px); /* Three files per row with spacing */
             margin-bottom: 20px;
             text-align: center;
-            padding: 10px;
+/*            padding: 10px;*/
             border: none; /*1px solid #ccc;*/
-            border-radius: 5px;
-            cursor: pointer; /* Cursor pointer to indicate clickable */
+            /*border-radius: 5px;*/
+/*            cursor: pointer; *//* Cursor pointer to indicate clickable */
+            
+/*            background-color: white;*/ /* White background for the container */
+            background-color: #DDDDDD;
+            border-radius: 15px; /* Rounded edges */
+            padding: 20px; /* Padding inside the container */
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); /* Optional: Add a subtle shadow for better visual effect */
         }
         .file-icon {
             font-size: 24px;
@@ -52,6 +65,7 @@
     <div class="container">
         <h1 class="text-center">SVG Anwesenheitsliste</h1>
         <h3>Verfügbare Listen</h3>
+        <hr class="hr" />
         <ul class="file-list" id="file-list">
             <?php
             // List all CSV files in the data directory
@@ -59,10 +73,12 @@
             foreach ($files as $file) {
                 $filename = basename($file);
                 echo '<div class="file-item">';
-                echo '<div><div class="btn btn-outline-secondary" onclick="redirectToContents(\'' . $filename . '\')" style="width: calc(100.00% - 10px);">'; // onclick="redirectToContents(\'' . $filename . '\')">;
+                echo '<div><div class="btn btn-outline-dark" onclick="redirectToContents(\'' . $filename . '\')" style="width: calc(100.00% - 10px);">'; // onclick="redirectToContents(\'' . $filename . '\')">;
                 echo '<div class="file-icon"><i class="fas fa-file-csv"></i></div>';
                 echo '<div class="file-name">' . htmlspecialchars($filename) . '</div></div></div>';
-                echo '<a class="btn btn-primary btn-file mr-1" href="data/' . urlencode($filename) . '" download>Download</a>';
+                echo '<a class="btn btn-primary btn-file mr-1" href="data/' . htmlentities($filename) . '" download>Download</a>';
+//                $filename_encoded = urlencode($filename);
+//                echo '<a class="btn btn-primary btn-file mr-1" href="data/' . htmlentities($filename_encoded) . '" download>Download</a>';
                 echo '<button class="btn btn-danger btn-file" onclick="deleteCsv(\'' . $filename . '\', event)">Delete</button>';
                 echo '</div>';
             }
@@ -111,6 +127,7 @@
                     alert('Error creating CSV file.');
                 });
         }
+        
         function redirectToContents(filename) {
             window.location.href = 'contents.php?filename=' + encodeURIComponent(filename);
         }

@@ -14,6 +14,13 @@
         body {
             font-family: Arial, sans-serif;
             padding: 20px;
+            
+            background-image: url('./background.svg');
+            background-size: cover;
+            background-position: center;
+            height: 100vh; /* Full viewport height */
+            
+            color: #DDDDDD;//white;
         }
         .table-container {
             max-width: 100%;
@@ -30,7 +37,10 @@
             text-align: left;            
         }
         .table th {
-            background-color: #f2f2f2;
+            background-color: #e9ecef; /*$gray-200;*/
+        }
+        .table td {
+            background-color: #f8f9fa /*$light;*/
         }
         .rotate {
             writing-mode: vertical-rl;
@@ -40,7 +50,7 @@
         .fixed-column {
             position: sticky;
             left: 0;
-            background-color: white;
+            /*background-color: white;*/
             z-index: 2;
         }
         .btn-back, .btn-create, .btn-save {
@@ -139,13 +149,14 @@
         }
 
         function createEntry(Position) {
-            const firstName = document.getElementById(`first-name-${Position}`).value;
-            const lastName = document.getElementById(`last-name-${Position}`).value;
-            const yearOfBirth = document.getElementById(`year-of-birth-${Position}`).value;
+            const firstName = document.getElementById(`first-name-${Position}`).value.trim();
+            const lastName = document.getElementById(`last-name-${Position}`).value.trim();
+            const yearOfBirth = document.getElementById(`year-of-birth-${Position}`).value.trim() || '';
             const email = document.getElementById(`email-${Position}`).value || '';
 
-            if (!firstName || !lastName || !yearOfBirth) {
-                alert('First Name, Last Name, and Year of Birth are required.');
+            if (!firstName || !lastName /*|| !yearOfBirth*/) {
+//                alert('First Name, Last Name, and Year of Birth are required.');
+                alert('First Name and Last Name are required.');
                 return;
             }
 
@@ -196,7 +207,7 @@
             row.cells[0].innerHTML = `
                 <input type="text" value="${firstName}" id="edit-first-name-${rowIndex}">
                 <input type="text" value="${lastName}" id="edit-last-name-${rowIndex}">
-                <input type="text" value="${yearOfBirth}" id="edit-year-of-birth-${rowIndex}">
+                <input type="text" value="${yearOfBirth}" id="edit-year-of-birth-${rowIndex}" placeholder="Year of Birth (Optional)">
                 <input type="email" value="${email}" id="edit-email-${rowIndex}" placeholder="Email (Optional)">
                 <button class="btn btn-success btn-sm" onclick="saveEdit(${rowIndex})"><i class="fas fa-save"></i></button>
                 <button class="btn btn-danger btn-sm" onclick="cancelEdit(${rowIndex})"><i class="fas fa-times"></i></button>
@@ -212,27 +223,45 @@
             const yearOfBirth = row.getAttribute('data-year-of-birth');
             const email = row.getAttribute('data-email');
 
-            row.cells[0].innerHTML = trimName(firstName, lastName, yearOfBirth);
+            row.cells[0].innerHTML = trimName(firstName, lastName, yearOfBirth) + ' [' + getChecked(row) + ']';
         }
 
-        function saveEdit(rowIndex) {
+        function saveEdit(rowIndex) {            
             const firstName = document.getElementById(`edit-first-name-${rowIndex}`).value;
             const lastName = document.getElementById(`edit-last-name-${rowIndex}`).value;
             const yearOfBirth = document.getElementById(`edit-year-of-birth-${rowIndex}`).value;
             const email = document.getElementById(`edit-email-${rowIndex}`).value || '';
-
+                        
             const row = document.getElementById(`row-${rowIndex}`);
             row.setAttribute('data-first-name', firstName);
             row.setAttribute('data-last-name', lastName);
             row.setAttribute('data-year-of-birth', yearOfBirth);
             row.setAttribute('data-email', email);
+            
+            row.cells[0].innerHTML = trimName(firstName, lastName, yearOfBirth) + ' [' + getChecked(row) + ']';
+        }
 
-            row.cells[0].innerHTML = trimName(firstName, lastName, yearOfBirth);
+        function getChecked(row)
+        {
+            let sum = 0;
+            const inputs = row.querySelectorAll('input');
+                        
+            for(let i = 0; i < inputs.length; i++)
+            {                
+                console.log(inputs[i]);
+                if (inputs[i].hasAttribute("checked"))
+                {
+                    sum += 1;
+                }
+            }
+            return sum;
         }
         
         function trimName(firstName, lastName, yearOfBirth) {
             const shortName = lastName.substring(0,1);
-            return `${firstName} ${shortName}. (${yearOfBirth})`
+            const birth = yearOfBirth ? `(${yearOfBirth})`:'';
+            return `${firstName} ${shortName}. ${birth}`
+
         }
         
         function addEditDelteButton(row, rowIndex) {
@@ -259,10 +288,16 @@
                 if (i === 0) {
                     rowContent.push('first name', 'last name', 'year of birth', 'email');
                     for (let j = 1; j < cells.length - 2; j++) {
+                        /* old stuff - seems not to work ios
                         const dateText = cells[j].innerText.trim();
                         const date = new Date(dateText); // Parse the date from the cell
                         const formattedDate = date.getFullYear() + '-' + ('0' + (date.getMonth() + 1)).slice(-2) + '-' + ('0' + date.getDate()).slice(-2);
                         rowContent.push(formattedDate); // Format date as Y-m-d
+                        */
+                        if (cells[j].getAttribute('isodate') != null)
+                        {
+                            rowContent.push(cells[j].getAttribute('isodate'));
+                        }
                     }
                 } else {
                     rowContent.push(
@@ -299,64 +334,55 @@
         }
         
         function toggleCheckbox(checkbox) {
+            let rowIndex = checkbox.id.split('-')[1];
             if (checkbox.checked) {
             	checkbox.setAttribute('checked','')
             }
             else {
                 checkbox.removeAttribute('checked')
             }
+            
+            cancelEdit(rowIndex);
         }
 
-	function releaseCheck(rowIndex) {	    
-	    const d = new Date();
+        function releaseCheck(rowIndex) {	    
+            const d = new Date();
             const day_no = d.getDay();
             let count = 2;
+            
             if ((day_no==4) || (day_no==1))
             {
-            	count+=1;
+                count+=1;
             }            
-	    const cells = document.getElementById(`row-${rowIndex}`).getElementsByTagName('td');	    
-	    for (let i = 1; i < cells.length - count; i++) {
-	        const input = cells[i].getElementsByTagName('input')[0];
-	        if (input.outerHTML.indexOf("return false;") >= 0) {
-	       	    if (!input.checked) {
-	            	input.removeAttribute('checked');    
-	            }
-	            input.removeAttribute('onclick');
-	            input.removeAttribute('class');
-	            input.setAttribute('onclick','toggleCheckbox(this)');
-	        }
-	        else {
-	            if (input.checked) {
-	            	input.setAttribute('checked','');    
-	            }	        	
-	            input.setAttribute('onclick','return false;');
-	            input.setAttribute('class','greyed-out-checkbox');	            
-	        }
-	        cells[i].innerHTML = input.outerHTML;
-	    }
-	}
+            
+            const cells = document.getElementById(`row-${rowIndex}`).getElementsByTagName('td');	    
+            
+            for (let i = 1; i < cells.length - count; i++) {
+                const input = cells[i].getElementsByTagName('input')[0];
+                if (input.outerHTML.indexOf("return false;") >= 0) {
+                    if (!input.checked) {
+                        input.removeAttribute('checked');    
+                    }
+                    input.removeAttribute('onclick');
+                    input.removeAttribute('class');
+                    input.setAttribute('onclick','toggleCheckbox(this)');
+                }
+                else {
+                    if (input.checked) {
+                        input.setAttribute('checked','');    
+                    }	        	
+                    input.setAttribute('onclick','return false;');
+                    input.setAttribute('class','greyed-out-checkbox');	            
+                }
+                cells[i].innerHTML = input.outerHTML;
+            }
+        }
 
         function scrollToTableEnd() {
             const table = document.getElementById('csv-table');
             table.scrollTop = table.scrollHeight;
         }
-/*
-        function scrollToRightEnd() {
-            const table = document.getElementById('csv-table');
-            table.scrollLeft = table.scrollWidth;
-        }
-  
-        function scrollToRightEnd() {
-        const table = document.getElementById('csv-table');
-        const tableWidth = table.getBoundingClientRect().width;
-        const containerWidth = table.parentElement.getBoundingClientRect().width;
 
-        if (tableWidth > containerWidth) {
-            table.scrollLeft = tableWidth - containerWidth;
-        }        
-        }
-*/
     </script>
 </body>
 </html>
